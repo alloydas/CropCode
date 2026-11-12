@@ -1,0 +1,58 @@
+# maize_row_iso_e1: global batch 32 = 16 per GPU x 2 GPUs.
+# Launch with torchrun --nproc_per_node=<world_size>; see README.md.
+data:
+  species: maize
+  row_root: data/maize_row
+  mode: isolated
+  train_split: train
+  val_split: train
+  val_holdout: 500
+  holdout_seed: 0
+  thetas: null
+  sample_per_plant: true
+  view_seed: 42
+  img_size: 224
+  num_points: 24576
+  gt_points: 8192
+model:
+  active_modalities: pc,rgb,depth,text
+  model_size: base
+  mask_ratio: 0.8
+  text_mask_ratio: null
+  loss_name: qal_loss
+  qal_threshold: 0.01
+  qal_alpha: 100.0
+  qal_use_squared: false
+  pc_loss_weight: 1.0
+  pc_sinkhorn_weight: 0.5
+  pc_sinkhorn_points: 1024
+  pc_sinkhorn_blur: 0.02
+  depth_norm_type: minmax
+  spline_loss_weight: 5.0
+  max_leaves: 28
+init:
+  checkpoint: ./outputs/maize_4m_pretrain_15k_d2/checkpoints/checkpoint_epoch_1000.pth
+  schema: v2
+training:
+  batch_size: 16
+  accum_steps: 1
+  epochs: 100
+  lr: 0.0001
+  weight_decay: 0.05
+  warmup_epochs: 5
+  val_freq: 5
+checkpointing:
+  output_dir: ./outputs/maize_row_iso_e1
+  save_freq: 5
+  keep_last: 3
+  keep_every: 25
+  resume: null
+system:
+  num_workers: 14
+  device: cuda
+wandb:
+  use_wandb: false
+  wandb_project: embodied-mae-maize
+  wandb_name: maize_row_iso_e1
+distributed:
+  world_size: 2

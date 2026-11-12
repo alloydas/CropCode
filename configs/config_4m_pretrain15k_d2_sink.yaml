@@ -1,0 +1,51 @@
+# 4m_pretrain15k_d2_sink: global batch 256 = 32 per GPU x 2 GPUs x 4 accumulation steps.
+# Launch with torchrun --nproc_per_node=<world_size>; see README.md.
+data:
+  data_root: data/Sorghum_15K
+  rgb_file: rgb_nobg.png
+  img_size: 224
+  num_points: 8196
+model:
+  model_size: base
+  mask_ratio: 0.8
+  loss_name: qal_loss
+  qal_threshold: 0.01
+  qal_alpha: 100.0
+  qal_use_squared: false
+  pc_loss_weight: 1.0
+  pc_sinkhorn_weight: 0.5
+  pc_sinkhorn_points: 1024
+  pc_sinkhorn_blur: 0.02
+  depth_norm_type: minmax
+  spline_loss_weight: 5.0
+  max_leaves: 24
+training:
+  batch_size: 32
+  epochs: 1000
+  lr: 0.0006
+  weight_decay: 0.05
+  warmup_epochs: 20
+  val_freq: 20
+  test_freq: 50
+  accum_steps: 4
+checkpointing:
+  output_dir: ./outputs/4m_pretrain_15k_d2_sink
+  save_freq: 5
+  keep_last: 3
+  keep_every: 100
+  resume: null
+visualization:
+  viz_freq: 20
+  num_viz_samples: 12
+distributed:
+  world_size: 2
+  dist_backend: nccl
+  dist_url: env://
+system:
+  num_workers: 44
+  device: cuda
+wandb:
+  use_wandb: false
+  wandb_project: embodied-mae-sorghum
+  wandb_entity: null
+  wandb_name: 4m_pretrain_15k_d2_sink

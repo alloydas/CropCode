@@ -1,0 +1,393 @@
+"""
+Custom Dataset Loader for Sorghum Data Structure
+Loads data from separate train and val folders
+"""
+
+import torch
+from torch.utils.data import Dataset
+import numpy as np
+from PIL import Image
+import torchvision.transforms as transforms
+import torchvision.transforms.functional as TF
+from torchvision.transforms import InterpolationMode
+from pathlib import Path
+import open3d as o3d
+
+import hashlib
+import json
+import os
+import tempfile
+
+
+# ── Dataset index cache ───────────────────────────────────────────────────────
+# Scanning the sample folders is expensive on the shared filesystem: every folder
+# costs an iterdir + a glob, which is ~311 s for the 22.5k-folder val split and
+# ~24 min for the 105k train split. Every DDP rank pays it at every job start and
+# every preemption-requeue. We cache the resolved file names instead, which also
+# removes the per-__getitem__ glob in find_pointcloud_file / the 4M spline lookup.
+#
+# Validity is keyed on the split directory's mtime, which changes when sample
+# folders are added or removed. It does NOT change when files inside an existing
+# sample folder change — set SORGHUM_INDEX_REBUILD=1 to force a rescan in that case.
+INDEX_CACHE_VERSION = 1
+
+# The RGB file a sample folder is read from. Since 2026-10-01 the active dataset
+# carries rgb_nobg.png next to rgb.png: RGBA, straight alpha, background fully
+# transparent (shorgum_data/remove_background.py un-blends the edge pixels from
+# the renderer's flat grey, mask from depth.png != 0). load_rgb composites it over
+# BLACK, alpha-weighted, so the plant sits on black with anti-aliased edges. Every
+# run trained before that date read rgb.png (grey background), and its config.json
+# has no rgb_file key: evaluation code must pass rgb_file='rgb.png' for those runs.
+RGB_FILE = 'rgb_nobg.png'
+
+
+def read_brighten_gain(path):
+    """The `brighten_gain` PNG text tag, 1.0 if absent.
+
+    The sorghum rgb_nobg.png files were brightened IN PLACE on 2026-10-13 ~10:02
+    (RGB x 1.85, clipped at 255, alpha untouched) and tagged with the gain. Every
+    run finished before then trained on gain 1.0; runs started after train on 1.85.
+    """
+    with Image.open(path) as im:
+        return float(getattr(im, 'text', {}).get('brighten_gain', 1.0))
+
+
+def _rescale_rgb(im, factor):
+    """Multiply the colour channels of a PIL image by `factor` (alpha untouched, clipped)."""
+    a = np.asarray(im).astype(np.float32)
+    a[..., :3] = np.clip(a[..., :3] * factor, 0.0, 255.0)
+    return Image.fromarray(np.round(a).astype(np.uint8), im.mode)
+
+
+def _index_cache_dir():
+    return Path(os.environ.get(
+        'SORGHUM_INDEX_CACHE',
+        Path(__file__).resolve().parent / '.dataset_index_cache'))
+
+
+def _index_cache_path(load_dir, tag):
+    key = f"{Path(load_dir).resolve()}|{tag}|v{INDEX_CACHE_VERSION}"
+    digest = hashlib.sha256(key.encode()).hexdigest()[:16]
+    return _index_cache_dir() / f"{Path(load_dir).name}_{tag}_{digest}.json"
+
+
+def _read_index_cache(load_dir, tag):
+    if os.environ.get('SORGHUM_INDEX_REBUILD'):
+        return None
+    path = _index_cache_path(load_dir, tag)
+    try:
+        with open(path) as fh:
+            blob = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    try:
+        if blob.get('version') != INDEX_CACHE_VERSION:
+            return None
+        if blob.get('dir_mtime_ns') != Path(load_dir).stat().st_mtime_ns:
+            return None
+    except OSError:
+        return None
+    return blob.get('entries')
+
+
+def _write_index_cache(load_dir, tag, entries):
+    """Atomic write so concurrent DDP ranks cannot observe a partial file."""
+    path = _index_cache_path(load_dir, tag)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        blob = {'version': INDEX_CACHE_VERSION,
+                'dir_mtime_ns': Path(load_dir).stat().st_mtime_ns,
+                'load_dir': str(Path(load_dir).resolve()),
+                'entries': entries}
+        fd, tmp = tempfile.mkstemp(dir=str(path.parent), suffix='.tmp')
+        try:
+            with os.fdopen(fd, 'w') as fh:
+                json.dump(blob, fh)
+            os.replace(tmp, path)
+        except BaseException:
+            try:
+                os.unlink(tmp)
+            except OSError:
+                pass
+            raise
+    except OSError:
+        pass          # a read-only cache dir must never be fatal
+
+
+class SorghumDataset(Dataset):
+    """
+    Dataset for Sorghum data structure with separate train/val folders
+    
+    Expected structure:
+    Option 1:
+    data_root/
+        train/
+            Sorghum_1_1/
+                Sorghum_1_nc.ply
+                rgb.png
+                depth_no_bg.png
+            Sorghum_2_2/
+                ...
+        val/
+            Sorghum_9_1/
+                Sorghum_9_nc.ply
+                rgb.png
+                depth_no_bg.png
+            ...
+    
+    Option 2:
+    train/
+        Sorghum_1_1/
+            ...
+    val/
+        Sorghum_9_1/
+            ...
+    
+    Usage:
+        # For training
+        train_dataset = SorghumDataset(data_root='./data/train')
+        # OR if using Option 1
+        train_dataset = SorghumDataset(data_root='./data', split='train')
+        
+        # For validation
+        val_dataset = SorghumDataset(data_root='./data/val')
+        # OR if using Option 1
+        val_dataset = SorghumDataset(data_root='./data', split='val')
+    """
+    def __init__(self, data_root, img_size=224, num_points=10000, split=None,
+                 rgb_file=RGB_FILE, rgb_gain=None):
+        """
+        Args:
+            data_root: Path to data directory
+            img_size: Image size for resizing
+            num_points: Number of points in point cloud
+            split: Optional split name ('train' or 'val'). If provided, will look for data_root/split/
+            rgb_file: RGB image in each sample folder (see RGB_FILE)
+            rgb_gain: the `brighten_gain` the images should be served at (see
+                read_brighten_gain). None (training default) serves the files as they
+                are on disk. Evaluation passes the gain a run TRAINED at, so a model
+                from before the 2026-10-13 brightening is fed the images it saw: the
+                colour channels are rescaled by rgb_gain / <file tag> when they differ
+                (clipped highlights cannot be undone; at 1.85 that is a few pixels).
+        """
+        self.data_root = Path(data_root)
+        self.img_size = img_size
+        self.num_points = num_points
+        self.rgb_file = rgb_file
+        self.rgb_gain = None if rgb_gain is None else float(rgb_gain)
+        
+        # Determine the folder to load from
+        if split is not None:
+            # Option 1: data_root/train/ or data_root/val/
+            self.load_dir = self.data_root / split
+            if not self.load_dir.exists():
+                raise ValueError(f"Split directory not found: {self.load_dir}")
+        else:
+            # Option 2: data_root is already train/ or val/
+            self.load_dir = self.data_root
+        
+        print(f"Loading data from: {self.load_dir}")
+        
+        # Image transformations
+        self.rgb_transform = transforms.Compose([
+            transforms.Resize((img_size, img_size)),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+        ])
+        
+        self.depth_transform = transforms.Compose([
+            transforms.Resize((img_size, img_size)),
+            transforms.ToTensor(),
+        ])
+        
+        # Get all sample folders and verify they have required files.
+        # `entries` is [[folder_name, pc_file_name], ...] and is cached to disk —
+        # see the index-cache helpers at the top of this module.
+        entries = _read_index_cache(self.load_dir, 'base')
+        if entries is None:
+            entries = []
+            for folder in sorted(self.load_dir.iterdir()):
+                if not folder.is_dir():
+                    continue
+
+                # Check for required files
+                rgb_path = folder / self.rgb_file
+                depth_path = folder / 'depth.png'
+
+                # Find point cloud file ending with _nc.ply
+                pc_files = list(folder.glob('*_nc_cam.ply'))
+
+                if rgb_path.exists() and depth_path.exists() and len(pc_files) > 0:
+                    entries.append([folder.name, pc_files[0].name])
+                else:
+                    print(f"⚠️  Skipping {folder.name}: missing files (RGB={rgb_path.exists()}, Depth={depth_path.exists()}, PC={len(pc_files)>0})")
+            _write_index_cache(self.load_dir, 'base', entries)
+        else:
+            print(f"⚡ index cache hit ({len(entries)} samples) — skipped the folder scan")
+
+        self.samples = [self.load_dir / name for name, _ in entries]
+        # Resolved point-cloud names, so find_pointcloud_file never globs per item.
+        self._pc_names = {name: pc for name, pc in entries}
+        
+        if len(self.samples) == 0:
+            raise ValueError(f"No valid samples found in {self.load_dir}!\n"
+                           f"Expected structure: folder/*_nc.ply, folder/{self.rgb_file}, folder/depth.png")
+        
+        print(f"✅ Loaded {len(self.samples)} samples from {self.load_dir.name}")
+    
+    def __len__(self):
+        return len(self.samples)
+    
+    def find_pointcloud_file(self, folder):
+        """Resolve the *_nc_cam.ply for a sample folder.
+
+        Uses the cached name when the index supplied one (the common path, and
+        the reason __getitem__ no longer does a directory listing per sample);
+        falls back to globbing for callers holding a folder we did not index.
+        """
+        cached = getattr(self, '_pc_names', {}).get(Path(folder).name)
+        if cached is not None:
+            return Path(folder) / cached
+        pc_files = list(Path(folder).glob('*_nc_cam.ply'))
+        if len(pc_files) == 0:
+            raise FileNotFoundError(f"No *_nc.ply file found in {folder}")
+        return pc_files[0]  # Return the first one if multiple exist
+    
+    def load_pointcloud(self, ply_path):
+        """Load point cloud from PLY file"""
+        try:
+            pcd = o3d.io.read_point_cloud(str(ply_path))
+            points = np.asarray(pcd.points)
+            
+            if len(points) == 0:
+                raise ValueError(f"Empty point cloud in {ply_path}")
+            
+            # Sample or pad to fixed size
+            num_points = points.shape[0]
+            if num_points >= self.num_points:
+                indices = np.random.choice(num_points, self.num_points, replace=False)
+                points = points[indices]
+            else:
+                # Pad with duplicated points
+                indices = np.random.choice(num_points, self.num_points - num_points, replace=True)
+                padding = points[indices]
+                points = np.vstack([points, padding])
+            
+            # Normalize point cloud
+            centroid = np.mean(points, axis=0)
+            points = points - centroid
+            max_dist = np.max(np.linalg.norm(points, axis=1))
+            if max_dist > 0:
+                points = points / max_dist
+            
+            return points.astype(np.float32)
+        except Exception as e:
+            raise RuntimeError(f"Error loading point cloud from {ply_path}: {e}")
+    
+    def load_rgb(self, folder):
+        """(3, img_size, img_size) normalised RGB from folder/self.rgb_file.
+
+        An RGBA file (rgb_nobg.png) is composited over opaque black with its
+        alpha, which is what a black-background render would give: a pixel 10 %
+        covered becomes 0.1 x its plant colour. Dropping the alpha instead would
+        keep the un-blended colour at full strength on every edge pixel and grow
+        the silhouette by up to 2 px. An RGB file (rgb.png) is read as before.
+        """
+        with Image.open(Path(folder) / self.rgb_file) as im:
+            if self.rgb_gain is not None:
+                g = float(getattr(im, 'text', {}).get('brighten_gain', 1.0))
+                if abs(g - self.rgb_gain) > 1e-6:
+                    im = _rescale_rgb(im, self.rgb_gain / g)
+            if im.mode == 'RGBA':
+                im = Image.alpha_composite(Image.new('RGBA', im.size, (0, 0, 0, 255)), im)
+            rgb = im.convert('RGB')
+        return self.rgb_transform(rgb)
+
+    def disk_rgb_gain(self):
+        """The `brighten_gain` tag of this split's first sample (1.0 if untagged): the
+        gain a run started now trains at. Trainers record it in config.json as
+        `rgb_brighten_gain` so evaluation can serve the same images later."""
+        return read_brighten_gain(Path(self.samples[0]) / self.rgb_file)
+
+    def load_depth(self, depth_path):
+        """Load depth without collapsing packed RGBA values to luminance.
+
+        The active dataset stores one scalar depth value across four bytes in
+        big-endian RGBA order.  Grayscale 8/16-bit depth PNGs are also accepted.
+        In either case the returned tensor is float32 in [0, 1], shaped
+        (1, img_size, img_size).  Zero remains the background value.
+        """
+        with Image.open(depth_path) as image:
+            depth_array = np.asarray(image)
+
+        if depth_array.ndim == 3:
+            if depth_array.shape[2] != 4 or depth_array.dtype != np.uint8:
+                raise ValueError(
+                    f"Unsupported multi-channel depth image: shape={depth_array.shape}, "
+                    f"dtype={depth_array.dtype}"
+                )
+
+            # depth.png uses big-endian packed RGBA:
+            # scalar = R*256^3 + G*256^2 + B*256 + A.
+            rgba = depth_array.astype(np.float32)
+            depth_array = (
+                rgba[..., 0] * (256.0 ** 3)
+                + rgba[..., 1] * (256.0 ** 2)
+                + rgba[..., 2] * 256.0
+                + rgba[..., 3]
+            ) / float((256 ** 4) - 1)
+        elif depth_array.ndim == 2:
+            if np.issubdtype(depth_array.dtype, np.integer):
+                depth_array = depth_array.astype(np.float32) / np.iinfo(depth_array.dtype).max
+            else:
+                depth_array = depth_array.astype(np.float32)
+                if not np.isfinite(depth_array).all():
+                    raise ValueError(f"Depth image contains non-finite values: {depth_path}")
+        else:
+            raise ValueError(f"Unsupported depth image shape: {depth_array.shape}")
+
+        depth = torch.from_numpy(np.ascontiguousarray(depth_array)).unsqueeze(0)
+        depth = TF.resize(
+            depth,
+            [self.img_size, self.img_size],
+            interpolation=InterpolationMode.BILINEAR,
+            antialias=True,
+        )
+        return depth
+
+    def __getitem__(self, idx):
+        sample_dir = self.samples[idx]
+        
+        try:
+            # Load RGB (rgb_nobg.png composited over black, or rgb.png)
+            rgb = self.load_rgb(sample_dir)
+            
+            # Load Depth
+            depth_path = sample_dir / 'depth.png'
+            depth = self.load_depth(depth_path)
+            
+            # Find and load Point Cloud
+            pc_path = self.find_pointcloud_file(sample_dir)
+            pc = self.load_pointcloud(pc_path)
+            pc = torch.from_numpy(pc)
+            
+            return rgb, depth, pc, str(sample_dir.name)
+        
+        except Exception as e:
+            print(f"❌ Error loading sample {sample_dir.name}: {e}")
+            # Return a dummy sample or raise
+            raise
+
+
+if __name__ == '__main__':
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('data_root', help='Path containing train/ and val/ subdirectories')
+    args = parser.parse_args()
+
+    for split in ('train', 'val'):
+        ds = SorghumDataset(args.data_root, split=split)
+        print(f"{split}: {len(ds)} samples")
+        if len(ds) > 0:
+            rgb, depth, pc, name = ds[0]
+            print(f"  sample={name}  rgb={tuple(rgb.shape)}  depth={tuple(depth.shape)}  pc={tuple(pc.shape)}")
