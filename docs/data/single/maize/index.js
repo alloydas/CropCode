@@ -1,0 +1,46 @@
+__pcvData("data/single/maize/index.json",{
+"task": "single",
+"species": "maize",
+"items": [
+{
+"id": "plant_1875_09",
+"tag": "Fig. 11",
+"json": "plant_1875_09.json"
+},
+{
+"id": "plant_6773_03",
+"tag": "5th percentile",
+"json": "plant_6773_03.json"
+},
+{
+"id": "plant_0006_06",
+"tag": "20th percentile",
+"json": "plant_0006_06.json"
+},
+{
+"id": "plant_7995_05",
+"tag": "35th percentile",
+"json": "plant_7995_05.json"
+},
+{
+"id": "plant_13623_01",
+"tag": "50th percentile",
+"json": "plant_13623_01.json"
+},
+{
+"id": "plant_9579_00",
+"tag": "65th percentile",
+"json": "plant_9579_00.json"
+},
+{
+"id": "plant_11579_05",
+"tag": "80th percentile",
+"json": "plant_11579_05.json"
+},
+{
+"id": "plant_2214_02",
+"tag": "95th percentile",
+"json": "plant_2214_02.json"
+}
+]
+});
