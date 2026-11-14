@@ -1,0 +1,102 @@
+{
+"task": "real",
+"species": "maize",
+"items": [
+{
+"id": "parallel_0019_17",
+"tag": "Fig. E10",
+"layout": "parallel",
+"json": "parallel_0019_17.json"
+},
+{
+"id": "parallel_0206_8",
+"tag": "Fig. E10",
+"layout": "parallel",
+"json": "parallel_0206_8.json"
+},
+{
+"id": "perpendicular_0137_4",
+"tag": "Fig. E10",
+"layout": "perpendicular",
+"json": "perpendicular_0137_4.json"
+},
+{
+"id": "perpendicular_0215_10",
+"tag": "Fig. E10",
+"layout": "perpendicular",
+"json": "perpendicular_0215_10.json"
+},
+{
+"id": "parallel_0477_10",
+"tag": "10th percentile",
+"layout": "parallel",
+"json": "parallel_0477_10.json"
+},
+{
+"id": "parallel_0190_9",
+"tag": "30th percentile",
+"layout": "parallel",
+"json": "parallel_0190_9.json"
+},
+{
+"id": "parallel_0084_1",
+"tag": "50th percentile",
+"layout": "parallel",
+"json": "parallel_0084_1.json"
+},
+{
+"id": "parallel_0493_13",
+"tag": "70th percentile",
+"layout": "parallel",
+"json": "parallel_0493_13.json"
+},
+{
+"id": "parallel_0203_1",
+"tag": "90th percentile",
+"layout": "parallel",
+"json": "parallel_0203_1.json"
+},
+{
+"id": "parallel_0479_11",
+"tag": "98th percentile",
+"layout": "parallel",
+"json": "parallel_0479_11.json"
+},
+{
+"id": "perpendicular_0125_9",
+"tag": "10th percentile",
+"layout": "perpendicular",
+"json": "perpendicular_0125_9.json"
+},
+{
+"id": "perpendicular_0165_15",
+"tag": "30th percentile",
+"layout": "perpendicular",
+"json": "perpendicular_0165_15.json"
+},
+{
+"id": "perpendicular_0056_1",
+"tag": "50th percentile",
+"layout": "perpendicular",
+"json": "perpendicular_0056_1.json"
+},
+{
+"id": "perpendicular_0509_2",
+"tag": "70th percentile",
+"layout": "perpendicular",
+"json": "perpendicular_0509_2.json"
+},
+{
+"id": "perpendicular_0149_17",
+"tag": "90th percentile",
+"layout": "perpendicular",
+"json": "perpendicular_0149_17.json"
+},
+{
+"id": "perpendicular_0340_15",
+"tag": "98th percentile",
+"layout": "perpendicular",
+"json": "perpendicular_0340_15.json"
+}
+]
+}

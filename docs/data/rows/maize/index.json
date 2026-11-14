@@ -1,0 +1,214 @@
+{
+"task": "rows",
+"species": "maize",
+"items": [
+{
+"id": "plant_0320_y0",
+"plant": "plant_0320",
+"yaw": 0,
+"tag": "Fig. 9",
+"json": "plant_0320_y0.json",
+"ft": 1.28
+},
+{
+"id": "plant_0320_y90",
+"plant": "plant_0320",
+"yaw": 90,
+"tag": "Fig. 9",
+"json": "plant_0320_y90.json",
+"ft": 2.17
+},
+{
+"id": "plant_2789_y0",
+"plant": "plant_2789",
+"yaw": 0,
+"tag": "55th percentile",
+"json": "plant_2789_y0.json",
+"ft": 2.59
+},
+{
+"id": "plant_2789_y90",
+"plant": "plant_2789",
+"yaw": 90,
+"tag": "55th percentile",
+"json": "plant_2789_y90.json",
+"ft": 10.0
+},
+{
+"id": "plant_3021_y0",
+"plant": "plant_3021",
+"yaw": 0,
+"tag": "65th percentile",
+"json": "plant_3021_y0.json",
+"ft": 4.72
+},
+{
+"id": "plant_3021_y90",
+"plant": "plant_3021",
+"yaw": 90,
+"tag": "65th percentile",
+"json": "plant_3021_y90.json",
+"ft": 3.46
+},
+{
+"id": "plant_3211_y0",
+"plant": "plant_3211",
+"yaw": 0,
+"tag": "75th percentile",
+"json": "plant_3211_y0.json",
+"ft": 3.9
+},
+{
+"id": "plant_3211_y90",
+"plant": "plant_3211",
+"yaw": 90,
+"tag": "75th percentile",
+"json": "plant_3211_y90.json",
+"ft": 8.27
+},
+{
+"id": "plant_3337_y0",
+"plant": "plant_3337",
+"yaw": 0,
+"tag": "25th percentile",
+"json": "plant_3337_y0.json",
+"ft": 1.41
+},
+{
+"id": "plant_3337_y90",
+"plant": "plant_3337",
+"yaw": 90,
+"tag": "25th percentile",
+"json": "plant_3337_y90.json",
+"ft": 6.82
+},
+{
+"id": "plant_3698_y0",
+"plant": "plant_3698",
+"yaw": 0,
+"tag": "85th percentile",
+"json": "plant_3698_y0.json",
+"ft": 4.67
+},
+{
+"id": "plant_3698_y90",
+"plant": "plant_3698",
+"yaw": 90,
+"tag": "85th percentile",
+"json": "plant_3698_y90.json",
+"ft": 8.87
+},
+{
+"id": "plant_3828_y0",
+"plant": "plant_3828",
+"yaw": 0,
+"tag": "95th percentile",
+"json": "plant_3828_y0.json",
+"ft": 3.7
+},
+{
+"id": "plant_3828_y90",
+"plant": "plant_3828",
+"yaw": 90,
+"tag": "95th percentile",
+"json": "plant_3828_y90.json",
+"ft": 3.82
+},
+{
+"id": "plant_4604_y0",
+"plant": "plant_4604",
+"yaw": 0,
+"tag": "Fig. 9",
+"json": "plant_4604_y0.json",
+"ft": 2.0
+},
+{
+"id": "plant_4604_y90",
+"plant": "plant_4604",
+"yaw": 90,
+"tag": "Fig. 9",
+"json": "plant_4604_y90.json",
+"ft": 3.08
+},
+{
+"id": "plant_5997_y0",
+"plant": "plant_5997",
+"yaw": 0,
+"tag": "15th percentile",
+"json": "plant_5997_y0.json",
+"ft": 2.23
+},
+{
+"id": "plant_5997_y90",
+"plant": "plant_5997",
+"yaw": 90,
+"tag": "15th percentile",
+"json": "plant_5997_y90.json",
+"ft": 4.73
+},
+{
+"id": "plant_6665_y0",
+"plant": "plant_6665",
+"yaw": 0,
+"tag": "Fig. 9",
+"json": "plant_6665_y0.json",
+"ft": 2.31
+},
+{
+"id": "plant_6665_y90",
+"plant": "plant_6665",
+"yaw": 90,
+"tag": "Fig. 9",
+"json": "plant_6665_y90.json",
+"ft": 3.69
+},
+{
+"id": "plant_7771_y0",
+"plant": "plant_7771",
+"yaw": 0,
+"tag": "5th percentile",
+"json": "plant_7771_y0.json",
+"ft": 2.19
+},
+{
+"id": "plant_7771_y90",
+"plant": "plant_7771",
+"yaw": 90,
+"tag": "5th percentile",
+"json": "plant_7771_y90.json",
+"ft": 6.87
+},
+{
+"id": "plant_7797_y0",
+"plant": "plant_7797",
+"yaw": 0,
+"tag": "35th percentile",
+"json": "plant_7797_y0.json",
+"ft": 3.31
+},
+{
+"id": "plant_7797_y90",
+"plant": "plant_7797",
+"yaw": 90,
+"tag": "35th percentile",
+"json": "plant_7797_y90.json",
+"ft": 5.11
+},
+{
+"id": "plant_9769_y0",
+"plant": "plant_9769",
+"yaw": 0,
+"tag": "45th percentile",
+"json": "plant_9769_y0.json",
+"ft": 4.16
+},
+{
+"id": "plant_9769_y90",
+"plant": "plant_9769",
+"yaw": 90,
+"tag": "45th percentile",
+"json": "plant_9769_y90.json",
+"ft": 6.78
+}
+]
+}

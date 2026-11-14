@@ -12,6 +12,13 @@ The Python modules keep the `embodied_mae` prefix of the masked-autoencoder back
 model in the paper is `EmbodiedMAE4M` (`embodied_mae_4m.py`) and its maize subclass
 `EmbodiedMAE4MMaize` (`embodied_mae_4m_maize.py`).
 
+## Project page
+
+`docs/` holds the project page: interactive 3D point-cloud viewers for every task in the paper (masked
+pretraining, any input to all streams, partial clouds, crop rows, real plants) on held-out plants of both
+species, and the datasets. It is a static site (GitHub Pages: branch `main`, folder `/docs`). To view it
+locally, serve the folder, e.g. `python -m http.server -d docs 8000`, and open http://localhost:8000.
+
 ## Layout
 
 | path | contents |
