@@ -1,54 +1,67 @@
 __pcvData("data/real/sorghum/index.json",{
 "task": "real",
 "species": "sorghum",
+"source": "field1000",
 "items": [
 {
-"id": "parallel_d1_267633_9",
-"tag": "held-out plant",
-"layout": "parallel",
-"json": "parallel_d1_267633_9.json"
+"id": "p1d2V_329941_row723_stop08",
+"tag": "0th",
+"layout": "field",
+"json": "p1d2V_329941_row723_stop08.json"
 },
 {
-"id": "perpendicular_d1_329299_9",
-"tag": "held-out plant",
-"layout": "perpendicular",
-"json": "perpendicular_d1_329299_9.json"
+"id": "d1_329392_row243_stop07",
+"tag": "17th",
+"layout": "field",
+"json": "d1_329392_row243_stop07.json"
 },
 {
-"id": "parallel_d1_330167_9",
-"tag": "held-out plant",
-"layout": "parallel",
-"json": "parallel_d1_330167_9.json"
+"id": "d2_455867_row352_stop09",
+"tag": "25th",
+"layout": "field",
+"json": "d2_455867_row352_stop09.json"
 },
 {
-"id": "perpendicular_d1_330210_9",
-"tag": "held-out plant",
-"layout": "perpendicular",
-"json": "perpendicular_d1_330210_9.json"
+"id": "p1d2V_452700_row122_stop08",
+"tag": "42th",
+"layout": "field",
+"json": "p1d2V_452700_row122_stop08.json"
 },
 {
-"id": "parallel_d2_330167_9",
-"tag": "held-out plant",
-"layout": "parallel",
-"json": "parallel_d2_330167_9.json"
+"id": "d1_568676_row520_stop09",
+"tag": "58th",
+"layout": "field",
+"json": "d1_568676_row520_stop09.json"
 },
 {
-"id": "perpendicular_p1d1V_329392_9",
-"tag": "held-out plant",
-"layout": "perpendicular",
-"json": "perpendicular_p1d1V_329392_9.json"
+"id": "p1d1V_453126_row585_stop10",
+"tag": "75th",
+"layout": "field",
+"json": "p1d1V_453126_row585_stop10.json"
 },
 {
-"id": "parallel_p1d1V_455867_9",
-"tag": "held-out plant",
-"layout": "parallel",
-"json": "parallel_p1d1V_455867_9.json"
+"id": "p1d1V_457443_row601_stop08",
+"tag": "83th",
+"layout": "field",
+"json": "p1d1V_457443_row601_stop08.json"
 },
 {
-"id": "perpendicular_p1d1V_524505_9",
-"tag": "held-out plant",
-"layout": "perpendicular",
-"json": "perpendicular_p1d1V_524505_9.json"
+"id": "d1_524505_row203_stop08",
+"tag": "100th",
+"layout": "field",
+"json": "d1_524505_row203_stop08.json"
+},
+{
+"id": "p1d2V_329956_row280_stop10",
+"tag": "median stop",
+"layout": "field",
+"json": "p1d2V_329956_row280_stop10.json"
+},
+{
+"id": "d1_329392_row589_stop07",
+"tag": "median stop",
+"layout": "field",
+"json": "d1_329392_row589_stop07.json"
 }
 ]
 });

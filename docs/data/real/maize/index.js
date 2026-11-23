@@ -1,102 +1,103 @@
 __pcvData("data/real/maize/index.json",{
 "task": "real",
 "species": "maize",
+"source": "field1000",
 "items": [
 {
-"id": "parallel_0019_17",
-"tag": "Fig. E10",
-"layout": "parallel",
-"json": "parallel_0019_17.json"
+"id": "0148_row890_stop10",
+"tag": "5th",
+"layout": "field",
+"json": "0148_row890_stop10.json"
 },
 {
-"id": "parallel_0206_8",
-"tag": "Fig. E10",
-"layout": "parallel",
-"json": "parallel_0206_8.json"
+"id": "0493_row569_stop08",
+"tag": "13th",
+"layout": "field",
+"json": "0493_row569_stop08.json"
 },
 {
-"id": "perpendicular_0137_4",
-"tag": "Fig. E10",
-"layout": "perpendicular",
-"json": "perpendicular_0137_4.json"
+"id": "0496_row40_stop10",
+"tag": "21th",
+"layout": "field",
+"json": "0496_row40_stop10.json"
 },
 {
-"id": "perpendicular_0215_10",
-"tag": "Fig. E10",
-"layout": "perpendicular",
-"json": "perpendicular_0215_10.json"
+"id": "0386_row939_stop06",
+"tag": "29th",
+"layout": "field",
+"json": "0386_row939_stop06.json"
 },
 {
-"id": "parallel_0477_10",
-"tag": "10th percentile",
-"layout": "parallel",
-"json": "parallel_0477_10.json"
+"id": "0477_row764_stop11",
+"tag": "38th",
+"layout": "field",
+"json": "0477_row764_stop11.json"
 },
 {
-"id": "parallel_0190_9",
-"tag": "30th percentile",
-"layout": "parallel",
-"json": "parallel_0190_9.json"
+"id": "0110_row687_stop10",
+"tag": "46th",
+"layout": "field",
+"json": "0110_row687_stop10.json"
 },
 {
-"id": "parallel_0084_1",
-"tag": "50th percentile",
-"layout": "parallel",
-"json": "parallel_0084_1.json"
+"id": "0437_row851_stop06",
+"tag": "54th",
+"layout": "field",
+"json": "0437_row851_stop06.json"
 },
 {
-"id": "parallel_0493_13",
-"tag": "70th percentile",
-"layout": "parallel",
-"json": "parallel_0493_13.json"
+"id": "0336_row457_stop10",
+"tag": "63th",
+"layout": "field",
+"json": "0336_row457_stop10.json"
 },
 {
-"id": "parallel_0203_1",
-"tag": "90th percentile",
-"layout": "parallel",
-"json": "parallel_0203_1.json"
+"id": "0069_row265_stop09",
+"tag": "71th",
+"layout": "field",
+"json": "0069_row265_stop09.json"
 },
 {
-"id": "parallel_0479_11",
-"tag": "98th percentile",
-"layout": "parallel",
-"json": "parallel_0479_11.json"
+"id": "0373_row61_stop11",
+"tag": "79th",
+"layout": "field",
+"json": "0373_row61_stop11.json"
 },
 {
-"id": "perpendicular_0125_9",
-"tag": "10th percentile",
-"layout": "perpendicular",
-"json": "perpendicular_0125_9.json"
+"id": "0501_row404_stop10",
+"tag": "88th",
+"layout": "field",
+"json": "0501_row404_stop10.json"
 },
 {
-"id": "perpendicular_0165_15",
-"tag": "30th percentile",
-"layout": "perpendicular",
-"json": "perpendicular_0165_15.json"
+"id": "0341_row294_stop11",
+"tag": "96th",
+"layout": "field",
+"json": "0341_row294_stop11.json"
 },
 {
-"id": "perpendicular_0056_1",
-"tag": "50th percentile",
-"layout": "perpendicular",
-"json": "perpendicular_0056_1.json"
+"id": "0204_row936_stop06",
+"tag": "median stop",
+"layout": "field",
+"json": "0204_row936_stop06.json"
 },
 {
-"id": "perpendicular_0509_2",
-"tag": "70th percentile",
-"layout": "perpendicular",
-"json": "perpendicular_0509_2.json"
+"id": "0064_row539_stop06",
+"tag": "median stop",
+"layout": "field",
+"json": "0064_row539_stop06.json"
 },
 {
-"id": "perpendicular_0149_17",
-"tag": "90th percentile",
-"layout": "perpendicular",
-"json": "perpendicular_0149_17.json"
+"id": "0217_row408_stop10",
+"tag": "median stop",
+"layout": "field",
+"json": "0217_row408_stop10.json"
 },
 {
-"id": "perpendicular_0340_15",
-"tag": "98th percentile",
-"layout": "perpendicular",
-"json": "perpendicular_0340_15.json"
+"id": "0357_row314_stop10",
+"tag": "median stop",
+"layout": "field",
+"json": "0357_row314_stop10.json"
 }
 ]
 });
